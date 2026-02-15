@@ -367,8 +367,28 @@ app.post('/upload-assignment', authenticateToken, upload.single('assignment'), a
     student.assignments[assignmentIndex].submissions.push(submission);
   }
 
-  await student.save();
+await student.save();
   res.redirect(`/dashboard?token=${token}`);
 });
+
+async function createAdmin() {
+  try {
+    const existingAdmin = await Admin.findOne({ username: 'admin' });
+    if (!existingAdmin) {
+      const newAdmin = new Admin({
+        username: 'admin',
+        password: 'admin', // Change this!
+        meetLink: 'https://bit.ly/enthusiasmclasslink'
+      });
+      await newAdmin.save();
+      console.log("✅ Admin user created successfully!");
+    } else {
+      console.log("ℹ️ Admin user already exists.");
+    }
+  } catch (err) {
+    console.error("❌ Error creating admin:", err);
+  }
+}
+createAdmin();
 
 app.listen(PORT, () => console.log(`🚀 Server running at http://localhost:${PORT}`));
