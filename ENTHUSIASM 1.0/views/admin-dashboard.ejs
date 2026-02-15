@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - ENTHUSIASM 1.0</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    /* Allow the dashboard to scroll and not just stick in the middle */
+    body { 
+      display: block; 
+      padding: 40px 20px; 
+      height: auto; 
+    }
+    .container { 
+      max-width: 900px; 
+      margin: 0 auto; 
+    }
+    .assignment-box {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #34495e;
+    }
+    details {
+      margin-bottom: 10px;
+    }
+    details summary {
+      cursor: pointer;
+      font-weight: bold;
+      color: #f39c12;
+    }
+    details[open] summary ~ * {
+      animation: fadeIn 0.5s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
+  <script>
+    // Ensure only one details element is open at a time
+    document.addEventListener('DOMContentLoaded', function() {
+      const details = document.querySelectorAll('details');
+      details.forEach(detail => {
+        detail.addEventListener('toggle', function() {
+          if (this.open) {
+            details.forEach(d => {
+              if (d !== this) d.open = false;
+            });
+          }
+        });
+      });
+    });
+  </script>
+</head>
+<body>
+  <div class="container">
+    <h1>Admin Dashboard</h1>
+    <h2>STATISTICS</h2>
+    <p>Total Students: <%= students.length %></p>
+    <h2>Update Meet Link</h2>
+    <form action="/admin/update-link?token=<%= token %>" method="POST">
+      <input type="text" name="meetLink" value="<%= admin ? admin.meetLink : 'https://bit.ly/enthusiasmclasslink' %>" placeholder="Enter new meet link" required>
+      <button type="submit">Update Link</button>
+    </form>
+    <h2>All Students</h2>
+    <% students.forEach(student => { %>
+      <details>
+        <summary><%= student.fullName %> (<%= student.email %>) - Attendance: <%= student.attendance %>/<%= student.totalClasses %></summary>
+        <div class="assignment-box">
+          <h3>Student Details</h3>
+          <p><strong>Full Name:</strong> <%= student.fullName %></p>
+          <p><strong>Email:</strong> <%= student.email %></p>
+          <p><strong>WhatsApp:</strong> <%= student.whatsapp %></p>
+          <p><strong>Courses:</strong> <%= student.courses.join(', ') %></p>
+          <p><strong>Has Device:</strong> <%= student.hasDevice ? 'Yes' : 'No' %></p>
+          <p><strong>Progress:</strong> <%= student.progress %>%</p>
+          <p><strong>Attendance Dates:</strong> <%= student.attendanceDates.map(date => new Date(date).toDateString()).join(', ') %></p>
+          <form action="/admin/delete-student/<%= student._id %>?token=<%= token %>" method="POST" style="display:inline;">
+            <button type="submit" style="background-color: #e74c3c; color: white;">Delete Student</button>
+          </form>
+          <h3>Assignments</h3>
+          <% if (student.assignments && student.assignments.length > 0) { %>
+            <% student.assignments.forEach((assignment, aIndex) => { %>
+              <h4>Course: <%= assignment.course %></h4>
+              <% if (assignment.submissions && assignment.submissions.length > 0) { %>
+                <% assignment.submissions.forEach((submission, sIndex) => { %>
+                  <p><a href="<%= submission.filePath.replace('public/', '') %>" target="_blank">Download</a> - Status: <%= submission.status %> - Submitted: <%= new Date(submission.submittedAt).toDateString() %></p>
+                  <% if (submission.status !== 'Approved') { %>
+                    <form action="/admin/approve-assignment/<%= student._id %>?token=<%= token %>" method="POST" style="display:inline;">
+                      <input type="hidden" name="course" value="<%= assignment.course %>">
+                      <input type="hidden" name="submissionIndex" value="<%= sIndex %>">
+                      <button type="submit">Approve</button>
+                    </form>
+                  <% } else { %>
+                    <span style="color: #f39c12; font-weight: bold;">Approved</span>
+                  <% } %>
+                  <form action="/admin/delete-assignment/<%= student._id %>?token=<%= token %>" method="POST" style="display:inline;">
+                    <input type="hidden" name="course" value="<%= assignment.course %>">
+                    <input type="hidden" name="submissionIndex" value="<%= sIndex %>">
+                    <button type="submit" style="background-color: #e74c3c; color: white;">Delete</button>
+                  </form>
+                <% }); %>
+              <% } else { %>
+                <p>No submissions.</p>
+              <% } %>
+            <% }); %>
+          <% } else { %>
+            <p>No assignments submitted.</p>
+          <% } %>
+        </div>
+      </details>
+    <% }); %>
+    <h2>LOGOUT FROM ADMIN DASHBOARD</h2>
+    <form action="/admin/logout" method="POST">
+      <button type="submit">Logout</button>
+    </form>
+  </div>
+</body>
+</html>

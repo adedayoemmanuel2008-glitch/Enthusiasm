@@ -1,0 +1,179 @@
+/* Global styles for dark, dynamic, premium look */
+body {
+  font-family: 'Arial', sans-serif;
+  background: linear-gradient(45deg, #2c3e50, #34495e, #1a1a2e, #16213e);
+  background-size: 400% 400%;
+  animation: gradientShift 8s ease infinite; /* Dynamic background shift */
+  margin: 0;
+  padding: 0;
+  color: #ecf0f1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.container {
+  max-width: 600px;
+  margin: 20px;
+  padding: 30px;
+  background: rgba(44, 62, 80, 0.9); /* Dark semi-transparent background */
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  animation: fadeIn 2s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+#title {
+  font-size: 3em;
+  font-weight: bold;
+  background: linear-gradient(45deg, #e74c3c, #f39c12); /* Energetic red-orange gradient */
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: pulse 2s infinite; /* Pulsing animation for energy */
+  margin-bottom: 10px;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+p {
+  font-size: 1.2em;
+  color: #bdc3c7;
+  margin-bottom: 20px;
+}
+
+.community-support {
+  margin-top: -15px; /* Reduced margin to bring link closer to "COMMUNITY SUPPORT" */
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+input, select, button, fieldset {
+  padding: 12px;
+  border: 2px solid #34495e;
+  border-radius: 8px;
+  font-size: 1em;
+  transition: all 0.3s ease;
+  background: #2c3e50;
+  color: #ecf0f1;
+}
+
+input:focus, select:focus {
+  border-color: #e74c3c;
+  box-shadow: 0 0 10px rgba(231, 76, 60, 0.5);
+  outline: none;
+}
+
+/* (Same as before, but update fieldset) */
+fieldset {
+  border: none;
+  text-align: left;
+  background: rgba(52, 73, 94, 0.8);
+  padding: 15px; /* Increased padding */
+  border-radius: 8px;
+  margin-top: 10px; /* Add top margin */
+}
+
+legend {
+  font-weight: bold;
+  color: #f39c12;
+  margin-bottom: 10px; /* Increased margin */
+  padding: 5px 10px; /* Add padding */
+  background: rgba(44, 62, 80, 0.9); /* Background for separation */
+  border-radius: 4px;
+}
+
+label {
+  display: block;
+  margin: 5px 0;
+  cursor: pointer;
+  color: #ecf0f1;
+}
+
+button {
+  background: linear-gradient(45deg, #e74c3c, #f39c12);
+  color: white;
+  font-size: 1.4375rem;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+  font-size: 1.1875rem;
+}
+
+a {
+  color: #f39c12;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+a:hover {
+  color: #e74c3c;
+}
+
+.progress-bar {
+  width: 100%;
+  background: #34495e;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 10px 0;
+}
+
+.progress-bar div {
+  height: 20px;
+  background: #f39c12;
+  text-align: center;
+  color: #2c3e50;
+  line-height: 20px;
+  transition: width 0.5s;
+}
+
+ul {
+  text-align: left;
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  background: rgba(52, 73, 94, 0.8);
+  margin: 5px 0;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+/* Responsive design for mobile and desktop */
+@media (max-width: 768px) {
+  #title {
+    font-size: 2em; /* Scales down on mobile */
+  }
+  .container {
+    padding: 20px;
+    margin: 10px;
+  }
+  input, button {
+    font-size: 0.9em;
+  }
+}

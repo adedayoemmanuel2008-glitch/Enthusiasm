@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ENTHUSIASM 1.0</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="container">
+    <h1 id="title">ENTHUSIASM 1.0</h1>
+    <p>The First Edition of Intensive Tech Training</p>
+    <form action="/register" method="POST">
+      <input type="text" name="fullName" placeholder="Full Name" required>
+      <input type="email" name="email" placeholder="Email Address" required>
+      <input type="text" name="whatsapp" placeholder="WhatsApp Number" required>
+      <input type="password" name="password" placeholder="Password (min 6 chars)" required>
+      <fieldset>
+        <legend>SELECT COURSES (Multiple allowed):</legend>
+        <label><input type="checkbox" name="courses" value="AI Mastery | Prompt Engineering"> AI Mastery | Prompt Engineering</label><br>
+        <label><input type="checkbox" name="courses" value="Pro Video Editing | Cinematic Style Gathering"> Pro Video Editing | Cinematic Style</label><br>
+        <label><input type="checkbox" name="courses" value="Premium Photo Editing | Brand Visual"> Premium Photo Editing | Brand Visual</label><br>
+        <label><input type="checkbox" name="courses" value="Website Building | Frontend Basics"> Website Building | Frontend Basics</label><br>
+        <label><input type="checkbox" name="courses" value="Smartphone Wealth Hack | Productivity"> Smartphone Wealth Hack | Productivity</label>
+      </fieldset>
+      <label>Do you have a Laptop/Phone? <input type="radio" name="hasDevice" value="yes" required> Yes <input type="radio" name="hasDevice" value="no" required> No</label>
+      <button type="submit">Register</button>
+    </form>
+    <p>Already have an account? <a href="/login">Login here</a></p>
+  </div>
+  <script src="js/script.js"></script>
+</body>
+</html>

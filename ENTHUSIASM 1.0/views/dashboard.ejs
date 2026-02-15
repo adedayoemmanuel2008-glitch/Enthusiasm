@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - ENTHUSIASM 1.0</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Welcome, <%= student.fullName %></h1>
+    <p>Email: <%= maskedEmail %></p>
+    <p>Attendance Score: <%= student.attendance %>/<%= student.totalClasses %></p>
+    <div class="progress-bar">
+      <div style="width: <%= student.progress %>%"><%= student.progress %>%</div>
+    </div>
+
+    <h2>Community Support</h2>
+    <p class="community-support"><a href="https://chat.whatsapp.com/Ll4okZM3hl1ET7lqxtuXyw">WhatsApp Group link</a></p>
+
+    <h2>My Registered Courses</h2>
+    <ul>
+      <% student.courses.forEach(course => { %>
+        <li><%= course %></li>
+      <% }); %>
+    </ul>
+
+    <h2>Assignments</h2>
+    <% student.courses.forEach(course => { %>
+      <h3><%= course %></h3>
+      <ul>
+        <% const assignment = student.assignments.find(a => a.course === course); %>
+        <% if (assignment && assignment.submissions && assignment.submissions.length > 0) { %>
+          <% assignment.submissions.forEach(submission => { %>
+            <li><a href="<%= submission.filePath.replace('public/', '') %>" target="_blank">View Submission</a> - Status: <%= submission.status %></li>
+          <% }); %>
+        <% } else { %>
+          <li>No assignments submitted for this course.</li>
+        <% } %>
+      </ul>
+    <% }); %>
+
+    <form action="/upload-assignment?token=<%= token %>" method="POST" enctype="multipart/form-data">
+      <label for="course">Select Course:</label>
+      <select name="course" id="course" required>
+        <% student.courses.forEach(course => { %>
+          <option value="<%= course %>"><%= course %></option>
+        <% }); %>
+      </select>
+      <input type="file" name="assignment" accept=".pdf,.jpg,.png" required>
+      <button type="submit">Upload Assignment</button>
+      <div style="background-color: #fff3cd; color: #856404; padding: 15px; border-radius: 5px; border: 1px solid #ffeeba; margin-bottom: 15px;">
+      <strong>⚠️ Submission Policy:</strong> Ensure you are uploading the correct file. 
+      Incorrect or empty submissions will be deleted by the admin, and you will have 
+      to resubmit. Please double-check before clicking upload.</div>
+    </form>
+
+    <h2>Class Link</h2>
+    <div style="margin-top: 15px;">
+      <form action="/join-class?token=<%= token %>" method="POST">
+        <button type="submit">Join Live Class</button>
+  <div style="background-color: #fff3cd; color: #856404; padding: 15px; border-radius: 5px; border: 1px solid #ffeeba; margin-bottom: 15px;">
+   <strong>📢 Live Session is Active:</strong> Click below to enter the virtual classroom. Please keep your microphone muted upon entry 
+    and use the <strong>"Raise Hand"</strong> feature for questions. Let’s create greatness together.
+</div>
+      </form>
+
+    <div style="margin-top: 15px;">
+      <% 
+        const today = new Date();
+        const alreadyMarkedToday = student.attendanceDates && student.attendanceDates.some(date => {
+          return new Date(date).toDateString() === today.toDateString();
+        });
+
+        const weekStart = new Date(today);
+        weekStart.setDate(today.getDate() - today.getDay() + 1); 
+        const weeklyCount = student.attendanceDates ? student.attendanceDates.filter(date => {
+          return new Date(date) >= weekStart;
+        }).length : 0;
+      %>
+
+      <% if (alreadyMarkedToday) { %>
+        <p>✅ You have already marked attendance today.</p>
+      <% } else if (weeklyCount >= 5) { %>
+        <p>🚫 Weekly limit reached.</p>
+      <% } else { %>
+        <form action="/mark-attendance?token=<%= token %>" method="POST">
+          <button type="submit">Mark Attendance</button>
+        </form>
+      <% } %>
+    </div>
+
+    <div style="margin-top: 30px;">
+      <form action="/logout" method="POST">
+        <button type="submit" style="background-color: #ff4444; color: white; cursor: pointer;">Logout</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Store token if needed for other scripts
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    if (token) { localStorage.setItem('jwtToken', token); }
+  </script>
+</body>
+</html>
