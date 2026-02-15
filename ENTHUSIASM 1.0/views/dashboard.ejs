@@ -55,34 +55,44 @@
       to resubmit. Please double-check before clicking upload.</div>
     </form>
 
-  <h2>Class Link</h2>
+    <h2>Class Link</h2>
     <div style="margin-top: 15px;">
       <form action="/join-class?token=<%= token %>" method="POST">
-        <div style="background-color: #fff3cd; color: #856404; padding: 15px; border-radius: 5px; border: 1px solid #ffeeba; margin-bottom: 15px;">
-          <strong>📢 Live Session is Active:</strong> Click below to enter the virtual classroom.
-        </div>
         <button type="submit">Join Live Class</button>
+  <div style="background-color: #fff3cd; color: #856404; padding: 15px; border-radius: 5px; border: 1px solid #ffeeba; margin-bottom: 15px;">
+   <strong>📢 Live Session is Active:</strong> Click below to enter the virtual classroom. Please keep your microphone muted upon entry 
+    and use the <strong>"Raise Hand"</strong> feature for questions. Let’s create greatness together.
+</div>
       </form>
-    </div>
 
-    <div style="margin-top: 25px;">
-      <h2>Attendance</h2>
+    <div style="margin-top: 15px;">
       <% 
         const today = new Date();
         const alreadyMarkedToday = student.attendanceDates && student.attendanceDates.some(date => {
           return new Date(date).toDateString() === today.toDateString();
         });
+
+        const weekStart = new Date(today);
+        weekStart.setDate(today.getDate() - today.getDay() + 1); 
+        const weeklyCount = student.attendanceDates ? student.attendanceDates.filter(date => {
+          return new Date(date) >= weekStart;
+        }).length : 0;
       %>
-      <form action="/mark-attendance?token=<%= token %>" method="POST">
-        <button type="submit" <%= alreadyMarkedToday ? 'disabled' : '' %>>
-          <%= alreadyMarkedToday ? 'Attendance Already Marked' : 'Mark Attendance for Today' %>
-        </button>
-      </form>
+
+      <% if (alreadyMarkedToday) { %>
+        <p>✅ You have already marked attendance today.</p>
+      <% } else if (weeklyCount >= 5) { %>
+        <p>🚫 Weekly limit reached.</p>
+      <% } else { %>
+        <form action="/mark-attendance?token=<%= token %>" method="POST">
+          <button type="submit">Mark Attendance</button>
+        </form>
+      <% } %>
     </div>
 
     <div style="margin-top: 30px;">
       <form action="/logout" method="POST">
-        <button type="submit" style="background: #666;">Logout</button>
+        <button type="submit" style="background-color: #ff4444; color: white; cursor: pointer;">Logout</button>
       </form>
     </div>
   </div>
@@ -94,5 +104,9 @@
     if (token) { localStorage.setItem('jwtToken', token); }
   </script>
 </body>
-
 </html>
+
+
+
+
+
