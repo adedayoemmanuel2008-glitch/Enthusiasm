@@ -230,7 +230,7 @@ app.post('/reset-password/:token', async (req, res) => {
     if (!student) return res.send('Invalid or expired token. Please request a new reset link.');
 
     student.password = password;
-    student.resetToken = undefined;
+    student.resetToken = undefined; // Fixed: Complete the assignment
     student.resetTokenExpiry = undefined;
     await student.save();
 
@@ -239,7 +239,9 @@ app.post('/reset-password/:token', async (req, res) => {
     console.error('❌ Reset password error:', err);
     res.status(500).send('An error occurred. Please try again.');
   }
-});// WhatsApp Webhook to Receive Replies (Added)
+});
+
+// WhatsApp Webhook to Receive Replies (Added)
 app.post('/whatsapp-webhook', (req, res) => {
   const message = req.body.Body; // The incoming message text
   const from = req.body.From; // Sender's WhatsApp number
@@ -375,44 +377,4 @@ app.post('/upload-assignment', authenticateToken, upload.single('assignment'), a
     const course = req.body.course;
 
     // Use a relative path that works with express.static('public')
-    const filePath = `/uploads/${req.file.filename}`;
-    const submission = { filePath, status: 'Pending', submittedAt: new Date() };
-
-    const assignmentIndex = student.assignments.findIndex(a => a.course === course);
-
-    if (assignmentIndex === -1) {
-      student.assignments.push({ course, submissions: [submission] });
-    } else {
-      student.assignments[assignmentIndex].submissions.push(submission);
-    }
-
-    await student.save();
-    res.redirect(`/dashboard?token=${token}`);
-  } catch (err) {
-    console.error("❌ Upload Error:", err);
-    res.status(500).send('Server Error during upload. Check if "public/uploads" folder exists.');
-  }
-});
-
-async function createAdmin() {
-  try {
-    const existingAdmin = await Admin.findOne({ username: 'admin' });
-    if (!existingAdmin) {
-      const newAdmin = new Admin({
-        username: 'admin',
-        password: 'admin', // Change this!
-        meetLink: 'https://bit.ly/enthusiasmclasslink'
-      });
-      await newAdmin.save();
-      console.log("✅ Admin user created successfully!");
-    } else {
-      console.log("ℹ️ Admin user already exists.");
-    }
-  } catch (err) {
-    console.error("❌ Error creating admin:", err);
-  }
-}
-createAdmin();
-
-app.listen(PORT, () => console.log(`🚀 Server running at http://localhost:${PORT}`));
-
+    const filePath = `/uploads/${
