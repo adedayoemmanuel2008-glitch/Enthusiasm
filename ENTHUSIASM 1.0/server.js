@@ -192,42 +192,54 @@ app.get('/dashboard', authenticateToken, async (req, res) => {
 app.get('/forgot-password', (req, res) => res.sendFile(path.join(__dirname, 'public/forgot-password.html')));
 
 app.post('/forgot-password', async (req, res) => {
-  const { email } = req.body;
-  const student = await Student.findOne({ email });
-  if (!student) return res.send('Email not found.');
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).send('Email is required.');
 
-  const resetToken = crypto.randomBytes(32).toString('hex');
-  student.resetToken = resetToken;
-  student.resetTokenExpiry = Date.now() + 15 * 60 * 1000; // 15 minutes
-  await student.save();
+    const student = await Student.findOne({ email });
+    if (!student) return res.send('Email not found. Please check and try again.');
 
-  const resetLink = `${process.env.BASE_URL}/reset-password/${resetToken}`;
-  await transporter.sendMail({
-    from: process.env.EMAIL_USER,
-    to: email,
-    subject: 'Password Reset',
-    html: `<a href="${resetLink}">Reset Password</a>`
-  });
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    student.resetToken = resetToken;
+    student.resetTokenExpiry = Date.now() + 15 * 60 * 1000; // 15 minutes
+    await student.save();
 
-  res.send('Reset link sent to your email.');
+    const resetLink = `${process.env.BASE_URL}/reset-password/${resetToken}`;
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'Password Reset - ENTHUSIASM 1.0',
+      html: `<p>Click the link below to reset your password. It expires in 15 minutes.</p><a href="${resetLink}">Reset Password</a>`
+    });
+
+    res.send('Reset link sent to your email. Check your inbox (and spam folder).');
+  } catch (err) {
+    console.error('❌ Forgot password error:', err);
+    res.status(500).send('An error occurred. Please try again later or contact support.');
+  }
 });
 
 app.get('/reset-password/:token', (req, res) => res.sendFile(path.join(__dirname, 'public/reset-password.html')));
 
 app.post('/reset-password/:token', async (req, res) => {
-  const { password } = req.body;
-  const student = await Student.findOne({ resetToken: req.params.token, resetTokenExpiry: { $gt: Date.now() } });
-  if (!student) return res.send('Invalid or expired token.');
+  try {
+    const { password } = req.body;
+    if (!password || password.length < 6) return res.status(400).send('Password must be at least 6 characters.');
 
-  student.password = password;
-  student.resetToken = undefined; // Fixed: Complete the assignment
-  student.resetTokenExpiry = undefined;
-  await student.save();
+    const student = await Student.findOne({ resetToken: req.params.token, resetTokenExpiry: { $gt: Date.now() } });
+    if (!student) return res.send('Invalid or expired token. Please request a new reset link.');
 
-  res.send('Password reset successful. <a href="/login">Login</a>');
-});
+    student.password = password;
+    student.resetToken = undefined;
+    student.resetTokenExpiry = undefined;
+    await student.save();
 
-// WhatsApp Webhook to Receive Replies (Added)
+    res.send('Password reset successful. <a href="/login">Login here</a>');
+  } catch (err) {
+    console.error('❌ Reset password error:', err);
+    res.status(500).send('An error occurred. Please try again.');
+  }
+});// WhatsApp Webhook to Receive Replies (Added)
 app.post('/whatsapp-webhook', (req, res) => {
   const message = req.body.Body; // The incoming message text
   const from = req.body.From; // Sender's WhatsApp number
@@ -353,22 +365,33 @@ app.post('/mark-attendance', authenticateToken, async (req, res) => {
 });
 
 app.post('/upload-assignment', authenticateToken, upload.single('assignment'), async (req, res) => {
-  if (!req.file) return res.send('No file selected.');
-  const student = await Student.findById(req.user.id);
-  const token = req.query.token || req.body.token;
-  const course = req.body.course;
+  try {
+    if (!req.file) return res.status(400).send('No file selected.');
+    
+    const student = await Student.findById(req.user.id);
+    if (!student) return res.status(404).send('Student not found.');
 
-  const assignmentIndex = student.assignments.findIndex(a => a.course === course);
-  const submission = { filePath: `/uploads/${req.file.filename}`, status: 'Pending', submittedAt: new Date() };
+    const token = req.query.token || req.body.token;
+    const course = req.body.course;
 
-  if (assignmentIndex === -1) {
-    student.assignments.push({ course, submissions: [submission] });
-  } else {
-    student.assignments[assignmentIndex].submissions.push(submission);
+    // Use a relative path that works with express.static('public')
+    const filePath = `/uploads/${req.file.filename}`;
+    const submission = { filePath, status: 'Pending', submittedAt: new Date() };
+
+    const assignmentIndex = student.assignments.findIndex(a => a.course === course);
+
+    if (assignmentIndex === -1) {
+      student.assignments.push({ course, submissions: [submission] });
+    } else {
+      student.assignments[assignmentIndex].submissions.push(submission);
+    }
+
+    await student.save();
+    res.redirect(`/dashboard?token=${token}`);
+  } catch (err) {
+    console.error("❌ Upload Error:", err);
+    res.status(500).send('Server Error during upload. Check if "public/uploads" folder exists.');
   }
-
-await student.save();
-  res.redirect(`/dashboard?token=${token}`);
 });
 
 async function createAdmin() {
@@ -392,3 +415,4 @@ async function createAdmin() {
 createAdmin();
 
 app.listen(PORT, () => console.log(`🚀 Server running at http://localhost:${PORT}`));
+
