@@ -192,53 +192,39 @@ app.get('/dashboard', authenticateToken, async (req, res) => {
 app.get('/forgot-password', (req, res) => res.sendFile(path.join(__dirname, 'public/forgot-password.html')));
 
 app.post('/forgot-password', async (req, res) => {
-  try {
-    const { email } = req.body;
-    if (!email) return res.status(400).send('Email is required.');
+  const { email } = req.body;
+  const student = await Student.findOne({ email });
+  if (!student) return res.send('Email not found.');
 
-    const student = await Student.findOne({ email });
-    if (!student) return res.send('Email not found. Please check and try again.');
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  student.resetToken = resetToken;
+  student.resetTokenExpiry = Date.now() + 15 * 60 * 1000; // 15 minutes
+  await student.save();
 
-    const resetToken = crypto.randomBytes(32).toString('hex');
-    student.resetToken = resetToken;
-    student.resetTokenExpiry = Date.now() + 15 * 60 * 1000; // 15 minutes
-    await student.save();
+  const resetLink = `${process.env.BASE_URL}/reset-password/${resetToken}`;
+  await transporter.sendMail({
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: 'Password Reset',
+    html: `<a href="${resetLink}">Reset Password</a>`
+  });
 
-    const resetLink = `${process.env.BASE_URL}/reset-password/${resetToken}`;
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: email,
-      subject: 'Password Reset - ENTHUSIASM 1.0',
-      html: `<p>Click the link below to reset your password. It expires in 15 minutes.</p><a href="${resetLink}">Reset Password</a>`
-    });
-
-    res.send('Reset link sent to your email. Check your inbox (and spam folder).');
-  } catch (err) {
-    console.error('❌ Forgot password error:', err);
-    res.status(500).send('An error occurred. Please try again later or contact support.');
-  }
+  res.send('Reset link sent to your email.');
 });
 
 app.get('/reset-password/:token', (req, res) => res.sendFile(path.join(__dirname, 'public/reset-password.html')));
 
 app.post('/reset-password/:token', async (req, res) => {
-  try {
-    const { password } = req.body;
-    if (!password || password.length < 6) return res.status(400).send('Password must be at least 6 characters.');
+  const { password } = req.body;
+  const student = await Student.findOne({ resetToken: req.params.token, resetTokenExpiry: { $gt: Date.now() } });
+  if (!student) return res.send('Invalid or expired token.');
 
-    const student = await Student.findOne({ resetToken: req.params.token, resetTokenExpiry: { $gt: Date.now() } });
-    if (!student) return res.send('Invalid or expired token. Please request a new reset link.');
+  student.password = password;
+  student.resetToken = undefined; // Fixed: Complete the assignment
+  student.resetTokenExpiry = undefined;
+  await student.save();
 
-    student.password = password;
-    student.resetToken = undefined; // Fixed: Complete the assignment
-    student.resetTokenExpiry = undefined;
-    await student.save();
-
-    res.send('Password reset successful. <a href="/login">Login here</a>');
-  } catch (err) {
-    console.error('❌ Reset password error:', err);
-    res.status(500).send('An error occurred. Please try again.');
-  }
+  res.send('Password reset successful. <a href="/login">Login</a>');
 });
 
 // WhatsApp Webhook to Receive Replies (Added)
@@ -367,14 +353,42 @@ app.post('/mark-attendance', authenticateToken, async (req, res) => {
 });
 
 app.post('/upload-assignment', authenticateToken, upload.single('assignment'), async (req, res) => {
+  if (!req.file) return res.send('No file selected.');
+  const student = await Student.findById(req.user.id);
+  const token = req.query.token || req.body.token;
+  const course = req.body.course;
+
+  const assignmentIndex = student.assignments.findIndex(a => a.course === course);
+  const submission = { filePath: `/uploads/${req.file.filename}`, status: 'Pending', submittedAt: new Date() };
+
+  if (assignmentIndex === -1) {
+    student.assignments.push({ course, submissions: [submission] });
+  } else {
+    student.assignments[assignmentIndex].submissions.push(submission);
+  }
+
+await student.save();
+  res.redirect(`/dashboard?token=${token}`);
+});
+
+async function createAdmin() {
   try {
-    if (!req.file) return res.status(400).send('No file selected.');
-    
-    const student = await Student.findById(req.user.id);
-    if (!student) return res.status(404).send('Student not found.');
+    const existingAdmin = await Admin.findOne({ username: 'admin' });
+    if (!existingAdmin) {
+      const newAdmin = new Admin({
+        username: 'admin',
+        password: 'admin', // Change this!
+        meetLink: 'https://bit.ly/enthusiasmclasslink'
+      });
+      await newAdmin.save();
+      console.log("✅ Admin user created successfully!");
+    } else {
+      console.log("ℹ️ Admin user already exists.");
+    }
+  } catch (err) {
+    console.error("❌ Error creating admin:", err);
+  }
+}
+createAdmin();
 
-    const token = req.query.token || req.body.token;
-    const course = req.body.course;
-
-    // Use a relative path that works with express.static('public')
-    const filePath = `/uploads/${
+app.listen(PORT, () => console.log(`🚀 Server running at http://localhost:${PORT}`));
