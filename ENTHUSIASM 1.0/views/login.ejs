@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - ENTHUSIASM 1.0</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Login to ENTHUSIASM 1.0</h1>
+    
+    <!-- Placeholder for error or success messages -->
+    <div id="message-container" style="color: #ff0000; margin-bottom: 15px;"></div>
+
+    <form action="/login" method="POST">
+      <!-- Email Input -->
+      <label for="email">Email Address</label>
+      <input type="email" id="email" name="email" placeholder="Enter your email" required autocomplete="email">
+
+      <!-- Password Input -->
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" placeholder="Enter your password" required autocomplete="current-password">
+
+      <button type="submit">Login</button>
+    </form>
+
+    <div class="auth-links">
+      <p><a href="/forgot-password">Forgot Password?</a></p>
+      <p>New here? <a href="/">Register</a></p>
+    </div>
+  </div>
+
+  <script src="/js/script.js"></script>
+</body>
+</html>

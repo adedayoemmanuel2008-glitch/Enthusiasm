@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Dashboard | ENTHUSIASM 1.0</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    /* Dashboard Layout Tweaks */
+    body { display: block; padding: 20px; height: auto; overflow-y: auto; }
+    .container { max-width: 800px; margin: 20px auto; text-align: left; }
+    #title { text-align: center; margin-bottom: 20px; }
+    
+    .status-card {
+      background: rgba(52, 73, 94, 0.3);
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 25px;
+      border-left: 5px solid #f39c12;
+    }
+
+    .course-item {
+      background: rgba(26, 33, 62, 0.6);
+      padding: 15px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .warning-box {
+      background-color: rgba(255, 243, 205, 0.1);
+      color: #f39c12;
+      padding: 15px;
+      border-radius: 8px;
+      border: 1px solid rgba(243, 156, 18, 0.3);
+      margin: 15px 0;
+      font-size: 0.9em;
+    }
+
+    .btn-join { background: linear-gradient(45deg, #27ae60, #2ecc71) !important; }
+    .btn-logout { background: transparent !important; border: 1px solid #ff4444 !important; color: #ff4444 !important; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 id="title">Student Command Center</h1>
+    
+    <!-- User Status Section -->
+    <div class="status-card">
+      <h2>Welcome, <%= student.fullName %></h2>
+      <p><strong>Registered ID:</strong> <%= maskedEmail %></p>
+      <p><strong>Attendance:</strong> <%= student.attendance.length %> Sessions</p>
+      <p><strong>Training Progress:</strong></p>
+      <div class="progress-bar">
+        <div style="width: <%= student.progress || 0 %>%"><%= student.progress || 0 %>%</div>
+      </div>
+    </div>
+
+    <!-- Live Interactions -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+        <form action="/join-class?token=<%= token %>" method="POST">
+            <button type="submit" class="btn-join" style="width: 100%; margin: 0;">Join Live Class</button>
+        </form>
+
+        <% 
+          const todayStr = new Date().toDateString();
+          const markedToday = student.attendanceDates && student.attendanceDates.some(d => new Date(d).toDateString() === todayStr);
+        %>
+        
+        <% if (markedToday) { %>
+            <button disabled style="width: 100%; margin: 0; background: #34495e; cursor: not-allowed; opacity: 0.7;">✅ Marked Present</button>
+        <% } else { %>
+            <form action="/mark-attendance?token=<%= token %>" method="POST">
+                <button type="submit" style="width: 100%; margin: 0;">Mark Attendance</button>
+            </form>
+        <% } %>
+    </div>
+
+    <div class="warning-box">
+        <strong>📢 PRO TIP:</strong> Ensure your internet connection is stable before joining the live session. Respect the "Raise Hand" protocol.
+    </div>
+
+    <hr style="border: 0.5px solid #34495e; margin: 30px 0;">
+
+    <!-- Project Submissions & Tracking -->
+    <h2>📚 Your Learning Tracks</h2>
+    <div class="course-container">
+      <% student.courses.forEach(course => { %>
+        <div class="course-item">
+            <strong><%= course %></strong>
+            <div style="margin-top: 10px; font-size: 0.9em;">
+                <% 
+                  // Synchronized to look into the 'projects' array
+                  const project = student.projects ? student.projects.find(p => p.course === course) : null; 
+                %>
+                <% if (project) { %>
+                    <div style="color: #2ecc71;">
+                        ✅ Submitted: <a href="<%= project.filePath %>" target="_blank" style="color: #f39c12; text-decoration: underline;">View File</a>
+                        <br><small>Status: <%= project.status || 'Pending Review' %></small>
+                    </div>
+                <% } else { %>
+                    <span style="color: #7f8c8d;">No project uploaded yet for this track.</span>
+                <% } %>
+            </div>
+        </div>
+      <% }); %>
+    </div>
+
+    <!-- Upload Section -->
+    <h2>📤 Submit New Project</h2>
+    <form action="/upload-project?token=<%= token %>" method="POST" enctype="multipart/form-data">
+      <label for="course">Select Course Track:</label>
+      <select name="course" id="course" required>
+        <% student.courses.forEach(course => { %>
+          <option value="<%= course %>"><%= course %></option>
+        <% }); %>
+      </select>
+      
+      <label for="projectFile">Upload Work (PDF/JPG/PNG):</label>
+      <input type="file" name="projectFile" id="projectFile" accept=".pdf,.jpg,.png" required>
+      
+      <div class="warning-box" style="border-color: #e74c3c; color: #ecf0f1;">
+        <strong>⚠️ Submission Policy:</strong> Incorrect or low-quality files will be deleted by Admin. You must resubmit immediately if a file is rejected.
+      </div>
+      
+      <button type="submit">Submit for Review</button>
+    </form>
+
+    <!-- Support & Logout -->
+    <div style="margin-top: 50px; text-align: center;">
+      <form action="/logout" method="POST">
+        <button type="submit" class="btn-logout" style="width: 180px;">Secure Logout</button>
+      </form>
+      <p style="margin-top: 20px; font-size: 0.9em;">
+          Need Technical Help? <a href="https://chat.whatsapp.com">WhatsApp Support</a>
+      </p>
+    </div>
+  </div>
+
+  <script src="/js/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard | ENTHUSIASM 1.0</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    body { display: block; padding: 40px 20px; height: auto; overflow-y: auto; background-color: #0a0e17; color: white; font-family: 'Segoe UI', sans-serif; }
+    .container { max-width: 1000px; margin: 0 auto; text-align: left; }
+    #title { text-align: center; color: #f39c12; text-transform: uppercase; letter-spacing: 2px; }
+    .alert { padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; font-weight: bold; }
+    .alert-error { background: #e74c3c; border: 1px solid #c0392b; }
+    .alert-success { background: #27ae60; border: 1px solid #2ecc71; }
+    .project-box { background: rgba(22, 33, 62, 0.8); padding: 20px; border-radius: 12px; margin-top: 10px; border: 1px solid rgba(243, 156, 18, 0.3); }
+    details { margin-bottom: 15px; background: rgba(52, 73, 94, 0.4); border-radius: 10px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.1); }
+    summary { padding: 15px; cursor: pointer; font-weight: bold; color: #f39c12; list-style: none; display: flex; justify-content: space-between; transition: background 0.3s; }
+    summary:hover { background: rgba(243, 156, 18, 0.1); }
+    .btn-danger { background: #e74c3c !important; font-size: 0.85em !important; padding: 6px 12px !important; margin: 0 !important; border: none; border-radius: 5px; color: white; cursor: pointer; }
+    .btn-approve { background: #27ae60 !important; color: white !important; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-size: 0.85em; font-weight: bold; transition: 0.3s; }
+    .btn-approve:hover { transform: scale(1.05); filter: brightness(1.2); }
+    .stat-card { display: inline-block; padding: 10px 20px; background: #16213e; border-radius: 8px; border-left: 4px solid #f39c12; margin-bottom: 20px; }
+    input[type="url"] { padding: 10px; border-radius: 5px; border: 1px solid #34495e; background: #1a1a2e; color: white; }
+    button[type="submit"]:not(.btn-danger):not(.btn-approve) { background: #f39c12; color: #16213e; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 id="title">ADMIN COMMAND CENTER</h1>
+
+    <!-- ERROR & SUCCESS MESSAGES -->
+    <% if (typeof error !== 'undefined' && error) { %>
+        <div class="alert alert-error">⚠️ <%= error %></div>
+    <% } %>
+    <% if (typeof message !== 'undefined' && message) { %>
+        <div class="alert alert-success">✅ <%= message %></div>
+    <% } %>
+    
+    <div class="stat-card">
+      <strong>Total Recruits:</strong> <%= students.length %> Students
+    </div>
+
+    <section>
+      <h2>Update Virtual Class Link</h2>
+      <form action="/admin/update-link?token=<%= token %>" method="POST" style="display: flex; gap: 10px;">
+        <input type="url" name="meetLink" value="<%= admin ? admin.meetLink : 'https://meet.google.com' %>" style="flex: 2;" required>
+        <button type="submit" style="flex: 1; font-size: 1rem;">Update Link</button>
+      </form>
+    </section>
+
+    <hr style="border: 0.5px solid #34495e; margin: 40px 0;">
+
+    <h2>Student Database</h2>
+    <% if (students.length === 0) { %>
+        <p>No students registered yet.</p>
+    <% } %>
+
+    <% students.forEach(student => { %>
+      <details id="student-<%= student._id %>">
+        <summary>
+          <span><%= student.fullName %></span>
+          <span>Attendance: <%= (student.attendanceDates ? student.attendanceDates.length : 0) %> Sessions</span>
+        </summary>
+        
+        <div class="project-box">
+          <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 20px;">
+            <div>
+              <p><strong>WhatsApp:</strong> <a href="https://wa.me<%= student.whatsapp %>" target="_blank" style="color: #2ecc71;"><%= student.whatsapp %></a></p>
+              <p><strong>Email:</strong> <%= student.email %></p>
+              <p><strong>Tracks:</strong> <%= Array.isArray(student.courses) ? student.courses.join(', ') : student.courses %></p>
+              <p><strong>Device:</strong> <%= student.hasDevice ? '✅ Ready' : '❌ No Device' %></p>
+            </div>
+            <form action="/admin/delete-student/<%= student._id %>?token=<%= token %>" method="POST" onsubmit="return confirm('CRITICAL: Delete student?');">
+              <button type="submit" class="btn-danger">Terminate User</button>
+            </form>
+          </div>
+
+          <h3 style="color: #f39c12; border-bottom: 1px solid #34495e; padding-bottom: 5px;">Project Submissions</h3>
+          
+          <% if (student.projects && student.projects.length > 0) { %>
+            <ul style="list-style: none; padding: 0;">
+              <% student.projects.forEach((project) => { %>
+                <li style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2); padding: 12px; margin-bottom: 8px; border-radius: 8px;">
+                  <span>
+                    <strong>Track: <%= project.course %></strong><br>
+                    <small style="color: <%= project.status === 'Approved' ? '#2ecc71' : '#bdc3c7' %>">
+                        Status: <%= project.status || 'Pending' %>
+                    </small>
+                  </span>
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <a href="<%= project.filePath %>" target="_blank" style="color: #f39c12; font-size: 0.9em; text-decoration: none; border: 1px solid #f39c12; padding: 4px 8px; border-radius: 4px;">View File</a>
+                    
+                    <% if (project.status !== 'Approved') { %>
+                        <form action="/admin/approve-project/<%= student._id %>/<%= project._id %>?token=<%= token %>" method="POST">
+                         <button type="submit">Approve</button>
+                       </form>
+
+                    <% } else { %>
+                        <span style="color: #2ecc71; font-weight: bold;">✅ Approved</span>
+                    <% } %>
+
+                    <form action="/admin/delete-project/<%= student._id %>/<%= project._id %>?token=<%= token %>" method="POST" onsubmit="return confirm('Delete this file?');">
+                       <button type="submit" class="btn-danger" style="padding: 5px 10px !important;">Delete</button>
+                    </form>
+                  </div>
+                </li>
+              <% }); %>
+            </ul>
+          <% } else { %>
+            <p style="font-style: italic; color: #7f8c8d;">No projects uploaded yet.</p>
+          <% } %>
+        </div>
+      </details>
+    <% }); %>
+
+    <div style="margin-top: 50px; text-align: center;">
+      <form action="/admin/logout" method="POST">
+        <button type="submit" style="background: transparent; border: 1px solid #e74c3c; color: #e74c3c; width: 220px; font-size: 1rem; padding: 10px; cursor: pointer;">Secure Admin Logout</button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

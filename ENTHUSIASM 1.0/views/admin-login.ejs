@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login - ENTHUSIASM 1.0</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="container">
+    <h1 id="title">ADMIN ACCESS</h1>
+    <p>Secure Portal for ENTHUSIASM 1.0 Management</p>
+
+    <!-- Display Errors (e.g., "Wrong Password") or Messages -->
+    <div id="message-container">
+        <% if (typeof error !== 'undefined' && error) { %>
+            <p style="color: #ff4444; font-weight: bold; margin-bottom: 15px;"><%= error %></p>
+        <% } %>
+    </div>
+
+    <!-- Admin Login Form -->
+    <form action="/admin/login" method="POST">
+      
+      <!-- Username Field -->
+      <label for="username">Admin Username</label>
+      <input type="text" id="username" name="username" placeholder="Enter admin username" required autocomplete="username">
+
+      <!-- Password Field -->
+      <label for="password">Admin Password</label>
+      <input type="password" id="password" name="password" 
+             placeholder="Enter admin password" required 
+             autocomplete="current-password">
+
+      <button type="submit">Authorize Login</button>
+    </form>
+
+    <div class="auth-links">
+      <p><a href="/login">Return to Student Portal</a></p>
+    </div>
+  </div>
+
+  <script src="/js/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,163 @@
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: linear-gradient(45deg, #2c3e50, #34495e, #1a1a2e, #16213e);
+  background-size: 400% 400%;
+  animation: gradientShift 8s ease infinite;
+  margin: 0;
+  padding: 0;
+  color: #ecf0f1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.container {
+  width: 100%;
+  max-width: 500px;
+  margin: 20px;
+  padding: 40px;
+  background: rgba(26, 26, 46, 0.95); /* Deeper dark for premium feel */
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+  text-align: center;
+  animation: fadeIn 1.2s ease-out;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+#title {
+  font-size: 2.5em;
+  font-weight: 900;
+  background: linear-gradient(45deg, #ff416c, #ff4b2b); /* Vivid Red-Orange */
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: pulse 3s infinite;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+}
+
+p {
+  font-size: 1.1em;
+  color: #aab2bd;
+  margin-bottom: 25px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: left; /* Align labels to the left */
+}
+
+/* Label styling for the new HTML structure */
+label {
+  font-size: 0.9em;
+  font-weight: 600;
+  color: #f39c12;
+  margin-bottom: -8px; 
+  margin-left: 5px;
+}
+
+input, select, fieldset {
+  padding: 14px;
+  border: 2px solid #34495e;
+  border-radius: 10px;
+  font-size: 1em;
+  transition: all 0.3s ease;
+  background: #16213e;
+  color: #ecf0f1;
+}
+
+input:focus {
+  border-color: #ff4b2b;
+  box-shadow: 0 0 12px rgba(255, 75, 43, 0.3);
+  outline: none;
+  background: #1a1a2e;
+}
+
+fieldset {
+  border: 1px solid #34495e;
+  background: rgba(52, 73, 94, 0.3);
+  padding: 15px;
+  margin-top: 10px;
+}
+
+legend {
+  font-weight: bold;
+  color: #f39c12;
+  font-size: 0.85em;
+  padding: 0 10px;
+  text-transform: uppercase;
+}
+
+/* Checkbox and Radio labels */
+fieldset label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0;
+  color: #ecf0f1;
+  font-weight: 400;
+  cursor: pointer;
+}
+
+button {
+  margin-top: 15px;
+  background: linear-gradient(45deg, #ff416c, #ff4b2b);
+  color: white;
+  padding: 15px;
+  border-radius: 10px;
+  font-size: 1.1em;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(255, 65, 108, 0.3);
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(255, 65, 108, 0.5);
+  filter: brightness(1.1);
+}
+
+.auth-links {
+  margin-top: 20px;
+  font-size: 0.95em;
+}
+
+a {
+  color: #f39c12;
+  text-decoration: none;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+a:hover {
+  color: #ff4b2b;
+  text-decoration: underline;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  #title { font-size: 1.8em; }
+  .container { padding: 25px; margin: 15px; }
+  button { font-size: 1em; }
+}

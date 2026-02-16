@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ENTHUSIASM 1.0 - Registration</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="container">
+    <h1 id="title">ENTHUSIASM 1.0</h1>
+    <p>The First Edition of Intensive Tech Training</p>
+    
+    <!-- Registration Form -->
+    <form action="/register" method="POST" id="registrationForm">
+      
+      <!-- Full Name -->
+      <label for="fullName">Full Name</label>
+      <input type="text" id="fullName" name="fullName" placeholder="Enter Full Name" required autocomplete="name">
+
+      <!-- Email Address -->
+      <label for="email">Email Address</label>
+      <input type="email" id="email" name="email" placeholder="email@example.com" required autocomplete="email">
+
+      <!-- WhatsApp Number with International Pattern Validation -->
+      <label for="whatsapp">WhatsApp Number (e.g., +234...)</label>
+      <input type="tel" id="whatsapp" name="whatsapp" placeholder="+234..." 
+             pattern="^\+?[1-9]\d{1,14}$" 
+             title="Please enter a valid international phone number starting with + (e.g., +234...)" 
+             required autocomplete="tel">
+
+      <!-- Password with Minimum Length -->
+      <label for="password">Password (min 6 chars)</label>
+      <input type="password" id="password" name="password" placeholder="Choose a secure password" 
+             required minlength="6" autocomplete="new-password">
+
+      <!-- Course Selection -->
+      <fieldset>
+        <legend>SELECT COURSES (At least one):</legend>
+        <label>
+          <input type="checkbox" name="courses" value="AI Mastery | Prompt Engineering"> 
+          AI Mastery | Prompt Engineering
+        </label><br>
+        <label>
+          <input type="checkbox" name="courses" value="Pro Video Editing | Cinematic Style"> 
+          Pro Video Editing | Cinematic Style
+        </label><br>
+        <label>
+          <input type="checkbox" name="courses" value="Premium Photo Editing | Brand Visual"> 
+          Premium Photo Editing | Brand Visual
+        </label><br>
+        <label>
+          <input type="checkbox" name="courses" value="Website Building | Frontend Basics"> 
+          Website Building | Frontend Basics
+        </label><br>
+        <label>
+          <input type="checkbox" name="courses" value="Smartphone Wealth Hack | Productivity"> 
+          Smartphone Wealth Hack | Productivity
+        </label>
+      </fieldset>
+
+      <!-- Device Access -->
+      <fieldset>
+        <legend>Do you have a Laptop or Smartphone?</legend>
+        <label>
+          <input type="radio" name="hasDevice" value="yes" required> Yes 
+        </label>
+        <label>
+          <input type="radio" name="hasDevice" value="no" required> No
+        </label>
+      </fieldset>
+
+      <button type="submit">Complete Registration</button>
+    </form>
+    
+    <p>Already have an account? <a href="/login">Login here</a></p>
+  </div>
+
+  <script src="/js/script.js"></script>
+</body>
+</html>
