@@ -9,7 +9,7 @@ const path = require('path');
 const fs = require('fs');
 require('dotenv').config();
 
-const { Student, Admin } = require('./schemas/User');
+const { Student, Admin } = require('./schemas/user');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -534,5 +534,6 @@ app.post('/admin/delete-student/:id', authenticateAdminToken, async (req, res) =
 
 app.post('/logout', (req, res) => res.redirect('/login'));
 app.post('/admin/logout', (req, res) => res.redirect('/admin/login'));
+
 
 app.listen(PORT, () => console.log(`🚀 Server active on ${PORT}`));
