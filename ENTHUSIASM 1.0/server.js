@@ -27,6 +27,7 @@ mongoose.connect(process.env.MONGODB_URI)
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static('public'));
+app.use('/uploads', express.static(path.join(process.cwd(), 'public', 'uploads')));
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
@@ -74,11 +75,17 @@ const authenticateAdminToken = (req, res, next) => {
 // --- FILE UPLOAD ---
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const dir = 'public/uploads/';
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    // USE process.cwd() - it's more reliable on Render than __dirname
+    const dir = path.join(process.cwd(), 'public', 'uploads'); 
+    
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
     cb(null, dir);
   },
-  filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname)
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + '-' + file.originalname);
+  }
 });
 const upload = multer({ storage });
 
@@ -539,5 +546,6 @@ app.post('/admin/logout', (req, res) => res.redirect('/admin/login'));
 
 
 app.listen(PORT, () => console.log(`🚀 Server active on ${PORT}`));
+
 
 
